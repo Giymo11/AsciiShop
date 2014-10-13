@@ -53,6 +53,7 @@ public class AsciiShop {
             // sanity check
             if(!isInsideBounds(image, x, y)) {
                 System.out.println("OPERATION FAILED");
+                return;
             }
             fill(image, x, y, c);
         }
