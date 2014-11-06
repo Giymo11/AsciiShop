@@ -20,7 +20,7 @@ public class AsciiShop {
         }
 
         // reads the image
-        String[] image = readImage(scanner, expectedImageLength);
+        AsciiImage image = readImage(scanner, expectedImageLength);
         if(image == null) {
             System.out.println("INPUT MISMATCH");
             return;
@@ -29,9 +29,8 @@ public class AsciiShop {
         // reads any fill commands
         while(scanner.hasNext()) {
             String word = scanner.next();
-            int x = -1;
-            int y = -1;
-            char c = ' ';
+            int x, y;
+            char c;
 
             if(word.equals("fill")) {
                 x = readNextInt(scanner);
@@ -49,21 +48,29 @@ public class AsciiShop {
                     System.out.println("INPUT MISMATCH");
                     return;
                 }
-            }
-            // sanity check
-            if(!isInsideBounds(image, x, y)) {
-                System.out.println("OPERATION FAILED");
+                // sanity check
+                if(!image.isInsideBounds(x, y)) {
+                    System.out.println("OPERATION FAILED");
+                    return;
+                }
+                image.fill(x, y, c);
+            } else if(word.equals("transpose")) {
+                image.transpose();
+            } else if(word.equals("flip-v")) {
+                image.flipV();
+            } else if(word.equals("uniqueChars")) {
+                System.out.println(image.getUniqueChars());
+            } else {
+                System.out.println("INPUT MISMATCH");
                 return;
             }
-            fill(image, x, y, c);
+
         }
 
         // Prints the finished input
-        for(String row : image) {
-            System.out.println(row);
-        }
+        System.out.println(image.toString());
         // Prints the dimensions of the image
-        System.out.println(image[0].length() + " " + image.length);
+        System.out.println(image.getWidth() + " " + image.getHeigth());
     }
 
     /**
@@ -93,13 +100,11 @@ public class AsciiShop {
      * Reads the image.
      * @return The read image or null for invalid input.
      */
-    private static String[] readImage(Scanner scanner, int expectedImageLength) {
-        String[] image = new String[expectedImageLength];
+    private static AsciiImage readImage(Scanner scanner, int expectedImageLength) {
+        AsciiImage image = new AsciiImage();
         for(int rowCount = 0; rowCount < expectedImageLength && scanner.hasNext(); ++rowCount) {
-            image[rowCount] = scanner.next();
-            if(image[rowCount].length() != image[0].length()) {
+            if(!image.addLine(scanner.next()))
                 return null;
-            }
         }
         return image;
     }
@@ -118,34 +123,5 @@ public class AsciiShop {
             }
         }
         return -1;
-    }
-
-    /**
-     * Floodfill. Overwrites the old color with the new one.
-     */
-    public static void fill(String[] image, int x, int y, char c) {
-        char oldColor = pixelAt(image, x, y);
-        String newRow = image[y].substring(0, x) + c + image[y].substring(x+1, image[0].length());
-        image[y] = newRow;
-        fillOldWithNew(image, x + 1, y, oldColor, c);
-        fillOldWithNew(image, x - 1, y, oldColor, c);
-        fillOldWithNew(image, x, y+1, oldColor, c);
-        fillOldWithNew(image, x, y - 1, oldColor, c);
-    }
-
-    /**
-     * Checks the constraints for the floodfill.
-     */
-    public static void fillOldWithNew(String[] image, int x, int y, char oldColor, char newColor) {
-        if(isInsideBounds(image, x, y) && pixelAt(image, x, y) == oldColor)
-            fill(image, x, y, newColor);
-    }
-
-    private static char pixelAt(String[] image, int x, int y) {
-        return image[y].charAt(x);
-    }
-
-    private static boolean isInsideBounds(String[] image, int x, int y) {
-        return x >= 0 && y >= 0 && x < image[0].length() && y < image.length;
     }
 }

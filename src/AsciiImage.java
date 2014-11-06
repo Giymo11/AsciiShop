@@ -7,13 +7,17 @@ public class AsciiImage {
 
     public boolean addLine(String line) {
        if(width == 0) {
-           if(line.length() > 0)
+           if (line.length() > 0){
                width = line.length();
+               heigth = 1;
+           }
            else
                return false;
            image = line;
-       } else if(line.length() == width)
+       } else if(line.length() == width) {
            image += line;
+           ++heigth;
+       }
         else
            return false;
        return true;
@@ -38,6 +42,10 @@ public class AsciiImage {
         return builder.toString();
     }
 
+    /**
+     *
+     * @return the number of unique colors in the image
+     */
     public int getUniqueChars() {
         String uniqueChars = "";
         for(char c : image.toCharArray()) {
@@ -47,6 +55,9 @@ public class AsciiImage {
         return uniqueChars.length();
     }
 
+    /**
+     * flips the image vertically -> (╯°□°）╯︵ ┻━┻)
+     */
     public void flipV() {
         StringBuilder builder = new StringBuilder();
         for(int y = heigth - 1; y >= 0; --y) {
@@ -55,6 +66,9 @@ public class AsciiImage {
         image = builder.toString();
     }
 
+    /**
+     * swaps rows and columns
+     */
     public void transpose() {
         StringBuilder builder = new StringBuilder();
         for(int x = 0; x < width; ++x)
@@ -63,6 +77,7 @@ public class AsciiImage {
         int oldHeigth = heigth;
         heigth = width;
         width = oldHeigth;
+        image = builder.toString();
     }
 
     /**
@@ -94,7 +109,11 @@ public class AsciiImage {
     }
 
     private String lineAt(int y) {
-        return image.substring(y * width, (y + 1) * width - 1);
+        StringBuilder builder = new StringBuilder();
+        for(int x = 0; x < width; ++x) {
+            builder.append(pixelAt(x, y));
+        }
+        return builder.toString();
     }
 
     private void setLineAt(int y, String line) {
@@ -103,7 +122,7 @@ public class AsciiImage {
         }
     }
 
-    private boolean isInsideBounds(int x, int y) {
+    public boolean isInsideBounds(int x, int y) {
         return x >= 0 && y >= 0 && x < width && y < heigth;
     }
 }
