@@ -25,113 +25,105 @@ public class AsciiShop {
 
         // reads the next commands
         while (sysin.hasNext()) {
-            String command = sysin.next();
+            String errorCode = interpretNextCommand(sysin, image);
 
-            if (command.equals("clear"))
-                image.clear();
-            else if (command.equals("line")) {
-                int x0 = readNextInt(sysin);
-                if (x0 <= 0) {
-                    System.out.println("INPUT MISMATCH");
-                    return;
-                }
-                int y0 = readNextInt(sysin);
-                if (y0 <= 0) {
-                    System.out.println("INPUT MISMATCH");
-                    return;
-                }
-                int x1 = readNextInt(sysin);
-                if (x1 <= 0) {
-                    System.out.println("INPUT MISMATCH");
-                    return;
-                }
-                int y1 = readNextInt(sysin);
-                if (y1 <= 0) {
-                    System.out.println("INPUT MISMATCH");
-                    return;
-                }
-                char color = readNextChar(sysin);
-                if (color == ' ') {
-                    System.out.println("INPUT MISMATCH");
-                    return;
-                }
-
-                image.drawLine(x0, y0, x1, y1, color);
-
-            } else if (command.equals("load")) {
-                String eof = sysin.next();
-                List<String> newImage = new LinkedList<String>();
-
-                while (sysin.hasNext()) {
-                    String line = sysin.next();
-
-                    if (line.equals(eof))
-                        break;
-                    else if (line.length() != image.getWidth()) {
-                        System.out.println("INPUT MISMATCH");
-                        return;
-                    } else {
-                        newImage.add(line);
-                    }
-                }
-
-                if (newImage.size() != image.getHeigth()) {
-                    System.out.println("INPUT MISMATCH");
-                    return;
-                } else {
-                    load(newImage, image);
-                }
-            } else if (command.equals("print"))
-                System.out.println(image);
-            else if (command.equals("replace")) {
-                char oldChar = readNextChar(sysin);
-                if (oldChar == ' ') {
-                    System.out.println("INPUT MISMATCH");
-                    return;
-                }
-                char newChar = readNextChar(sysin);
-                if (newChar == ' ') {
-                    System.out.println("INPUT MISMATCH");
-                    return;
-                }
-                image.replace(oldChar, newChar);
-            } else if (command.equals("transpose"))
-                image.transpose();
-            else if (command.equals("fill")) {
-                int x = readNextInt(sysin);
-                if (x == -1) {
-                    System.out.println("INPUT MISMATCH");
-                    return;
-                }
-                int y = readNextInt(sysin);
-                if (y == -1) {
-                    System.out.println("INPUT MISMATCH");
-                    return;
-                }
-                if (!image.isInsideBounds(x, y)) {
-                    System.out.println("OPERATION FAILED");
-                    return;
-                }
-                char color = readNextChar(sysin);
-                if (color == ' ') {
-                    System.out.println("INPUT MISMATCH");
-                    return;
-                }
-
-                image.fill(x, y, color);
-            } else {
-                System.out.println("UNKNOWN COMMAND");
+            if (errorCode != null) {
+                System.out.println(errorCode);
                 return;
             }
         }
 
     }
 
+    private static String interpretNextCommand(Scanner sysin, AsciiImage image) {
+        String command = sysin.next();
+
+        if (command.equals("clear"))
+            image.clear();
+        else if (command.equals("line")) {
+            int x0 = readNextInt(sysin);
+
+            if (x0 <= 0)
+                return "INPUT MISMATCH";
+
+            int y0 = readNextInt(sysin);
+            if (y0 <= 0)
+                return "INPUT MISMATCH";
+
+            int x1 = readNextInt(sysin);
+            if (x1 <= 0)
+                return "INPUT MISMATCH";
+
+            int y1 = readNextInt(sysin);
+            if (y1 <= 0)
+                return "INPUT MISMATCH";
+
+            char color = readNextChar(sysin);
+            if (color == ' ')
+                return "INPUT MISMATCH";
+
+            image.drawLine(x0, y0, x1, y1, color);
+
+        } else if (command.equals("load")) {
+            String eof = sysin.next();
+            List<String> newImage = new LinkedList<String>();
+
+            while (sysin.hasNext()) {
+                String line = sysin.next();
+
+                if (line.equals(eof))
+                    break;
+                else if (line.length() != image.getWidth())
+                    return "INPUT MISMATCH";
+                else
+                    newImage.add(line);
+            }
+
+            if (newImage.size() != image.getHeight())
+                return "INPUT MISMATCH";
+            else
+                load(newImage, image);
+
+        } else if (command.equals("print"))
+            System.out.println(image.toString());
+        else if (command.equals("replace")) {
+            char oldChar = readNextChar(sysin);
+            if (oldChar == ' ')
+                return "INPUT MISMATCH";
+
+            char newChar = readNextChar(sysin);
+            if (newChar == ' ')
+                return "INPUT MISMATCH";
+
+            image.replace(oldChar, newChar);
+        } else if (command.equals("transpose"))
+            image.transpose();
+        else if (command.equals("fill")) {
+            int x = readNextInt(sysin);
+            if (x == -1)
+                return "INPUT MISMATCH";
+
+            int y = readNextInt(sysin);
+            if (y == -1)
+                return "INPUT MISMATCH";
+
+            if (!image.isInsideBounds(x, y))
+                return "OPERATION FAILED";
+
+            char color = readNextChar(sysin);
+            if (color == ' ') {
+                return "INPUT MISMATCH";
+            }
+
+            image.fill(x, y, color);
+        } else {
+            return "UNKNOWN COMMAND";
+        }
+        return null;
+    }
+
     /**
-     * loads a list of strings into the old AsciiImage
-     *
-     * @param newImage
-     * @param oldImage
+     * loads a list of strings into an AsciiImage
      */
     private static void load(List<String> newImage, AsciiImage oldImage) {
         ListIterator<String> newImageIterator = newImage.listIterator();
@@ -143,6 +135,12 @@ public class AsciiShop {
         }
     }
 
+    /**
+     * Reads the "create"-command.
+     *
+     * @param scanner The scanner to read with
+     * @return The newly created AsciiImage, otherwise null
+     */
     private static AsciiImage readCreateCommand(Scanner scanner) {
         if (scanner.hasNext()) {
             String command = scanner.next();
@@ -178,35 +176,6 @@ public class AsciiShop {
     private static int readNextInt(Scanner scanner) {
         if(scanner.hasNextInt())
             return scanner.nextInt();
-        return -1;
-    }
-
-    /**
-     * Reads the image.
-     * @return The read image or null for invalid input.
-     */
-    private static AsciiImage readImage(Scanner scanner, int expectedImageLength) {
-        AsciiImage image = new AsciiImage();
-        for(int rowCount = 0; rowCount < expectedImageLength && scanner.hasNext(); ++rowCount) {
-            if(!image.addLine(scanner.next()))
-                return null;
-        }
-        return image;
-    }
-
-    /**
-     * Reads the "read"-command.
-     * @return The expected length of the image or -1 for invalid input.
-     */
-    private static int readReadCommand(Scanner scanner) {
-        if(scanner.hasNext()) {
-            String word = scanner.next();
-            if(word.equals("read") && scanner.hasNextInt()) {
-                int expectedPictureLength = scanner.nextInt();
-                if(expectedPictureLength > 0)
-                    return expectedPictureLength;
-            }
-        }
         return -1;
     }
 }

@@ -2,104 +2,43 @@
  * The object representing an AsciiImage.
  */
 public class AsciiImage {
-    private String image;
-    private int heigth, width;
+    private char[][] image;
 
     public AsciiImage(int width, int heigth) {
-        //TODO: refactor to use new data structure
+        image = new char[heigth][width];
+        clear();
+        System.out.println("Height: " + getHeight() + ", Width: " + getWidth());
     }
 
-    public AsciiImage() {
-        //TODO: delete this constructor
-    }
-
-    public boolean addLine(String line) {
-       if(width == 0) {
-           if (line.length() > 0){
-               width = line.length();
-               heigth = 1;
-           }
-           else
-               return false;
-           image = line;
-       } else if(line.length() == width) {
-           image += line;
-           ++heigth;
-       }
-        else
-           return false;
-       return true;
-    }
-
-    public int getHeigth() {
-        return heigth;
+    public int getHeight() {
+        return image.length;
     }
 
     public int getWidth() {
-        return width;
+        return image[0].length;
     }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        for(int count = 0; count < image.length(); ++count) {
-            if(count % width == 0 && count != 0)
-                builder.append("\n");
-            builder.append(image.charAt(count));
+        for (int y = 0; y < getHeight(); ++y) {
+            for (int x = 0; x < getWidth(); ++x)
+                builder.append(pixelAt(x, y));
+            builder.append('\n');
         }
         return builder.toString();
-    }
-
-    /**
-     * checks if the image is a palindrom (horizontally symmetric)
-     */
-    public boolean isSymmetricH() {
-        for(int y = 0; y < heigth; ++y) {
-            for(int x = 0; x < width/2; ++x) {
-                if(pixelAt(x, y) != pixelAt(width-x-1, y))
-                    return false;
-            }
-        }
-        return true;
-    }
-
-    /**
-     *
-     * @return the number of unique colors in the image
-     */
-    public int getUniqueChars() {
-        String uniqueChars = "";
-        for(char c : image.toCharArray()) {
-            if(uniqueChars.indexOf(c) == -1)
-                uniqueChars += c;
-        }
-        return uniqueChars.length();
-    }
-
-    /**
-     * flips the image vertically -> (╯°□°）╯︵ ┻━┻)
-     */
-    public void flipV() {
-        StringBuilder builder = new StringBuilder();
-        for(int y = heigth - 1; y >= 0; --y) {
-            builder.append(lineAt(y));
-        }
-        image = builder.toString();
     }
 
     /**
      * swaps rows and columns
      */
     public void transpose() {
-        //TODO: refactor for new data structure
-        StringBuilder builder = new StringBuilder();
-        for(int x = 0; x < width; ++x)
-            for(int y = 0; y < heigth; ++y)
-                builder.append(pixelAt(x, y));
-        int oldHeigth = heigth;
-        heigth = width;
-        width = oldHeigth;
-        image = builder.toString();
+        AsciiImage newImage = new AsciiImage(getHeight(), getWidth());
+        for (int x = 0; x < getWidth(); ++x)
+            for (int y = 0; y < getHeight(); ++y)
+                newImage.setPixelAt(y, x, pixelAt(x, y));
+
+        image = newImage.image;
     }
 
     /**
@@ -123,33 +62,21 @@ public class AsciiImage {
     }
 
     private char pixelAt(int x, int y) {
-        return image.charAt(y * width + x);
+        return image[y][x];
     }
 
     public void setPixelAt(int x, int y, char color) {
-        image = image.substring(0, y * width + x) + color + image.substring(y * width + x + 1);
-    }
-
-    private String lineAt(int y) {
-        StringBuilder builder = new StringBuilder();
-        for(int x = 0; x < width; ++x) {
-            builder.append(pixelAt(x, y));
-        }
-        return builder.toString();
-    }
-
-    private void setLineAt(int y, String line) {
-        for(int count = 0; count < line.length(); ++count) {
-            setPixelAt(count, y, line.charAt(count));
-        }
+        image[y][x] = color;
     }
 
     public boolean isInsideBounds(int x, int y) {
-        return x >= 0 && y >= 0 && x < width && y < heigth;
+        return x >= 0 && y >= 0 && x < getWidth() && y < getHeight();
     }
 
     public void clear() {
-        //TODO: implement this method
+        for (int x = 0; x < getWidth(); ++x)
+            for (int y = 0; y < getHeight(); ++y)
+                setPixelAt(x, y, '.');
     }
 
     public void drawLine(int x0, int y0, int x1, int y1, char color) {
@@ -157,6 +84,9 @@ public class AsciiImage {
     }
 
     public void replace(char oldChar, char newChar) {
-        //TODO: implement this method
+        for (int x = 0; x < getWidth(); ++x)
+            for (int y = 0; y < getHeight(); ++y)
+                if (pixelAt(x, y) == oldChar)
+                    setPixelAt(x, y, newChar);
     }
 }
