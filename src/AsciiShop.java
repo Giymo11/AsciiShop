@@ -10,40 +10,68 @@ public class AsciiShop {
 
     public static void main(String[] args) {
 
-        Scanner scanner = new Scanner(System.in);
+        Scanner sysin = new Scanner(System.in);
 
-        // reads the read-command
-        int expectedImageLength = readReadCommand(scanner);
-        if(expectedImageLength == -1) {
+        // reads the create command
+        AsciiImage image = readCreateCommand(sysin);
+        if (image == null) {
             System.out.println("INPUT MISMATCH");
             return;
         }
 
-        // reads the image
-        AsciiImage image = readImage(scanner, expectedImageLength);
-        if(image == null) {
-            System.out.println("INPUT MISMATCH");
-            return;
+        while (sysin.hasNext()) {
+            String command = sysin.next();
+
+            if (command.equals("clear"))
+                image.clear();
+            else if (command.equals("line")) {
+                int x0 = readNextInt(sysin);
+                if (x0 <= 0) {
+                    System.out.println("INPUT MISMATCH");
+                    return;
+                }
+                int y0 = readNextInt(sysin);
+                if (y0 <= 0) {
+                    System.out.println("INPUT MISMATCH");
+                    return;
+                }
+                int x1 = readNextInt(sysin);
+                if (x1 <= 0) {
+                    System.out.println("INPUT MISMATCH");
+                    return;
+                }
+                int y1 = readNextInt(sysin);
+                if (y1 <= 0) {
+                    System.out.println("INPUT MISMATCH");
+                    return;
+                }
+                char color = readNextChar(sysin);
+                if (color == ' ') {
+                    System.out.println("INPUT MISMATCH");
+                    return;
+                }
+                image.drawLine(x0, y0, x1, y1, color);
+            }
         }
 
         // reads any fill commands
-        while(scanner.hasNext()) {
-            String word = scanner.next();
+        while (sysin.hasNext()) {
+            String word = sysin.next();
             int x, y;
             char c;
 
             if(word.equals("fill")) {
-                x = readNextInt(scanner);
+                x = readNextInt(sysin);
                 if(x < 0) {
                     System.out.println("INPUT MISMATCH");
                     return;
                 }
-                y = readNextInt(scanner);
+                y = readNextInt(sysin);
                 if(y < 0) {
                     System.out.println("INPUT MISMATCH");
                     return;
                 }
-                c = readNextChar(scanner);
+                c = readNextChar(sysin);
                 if(c == ' ') {
                     System.out.println("INPUT MISMATCH");
                     return;
@@ -73,6 +101,21 @@ public class AsciiShop {
         System.out.println(image.toString());
         // Prints the dimensions of the image
         System.out.println(image.getWidth() + " " + image.getHeigth());
+    }
+
+    private static AsciiImage readCreateCommand(Scanner scanner) {
+        if (scanner.hasNext()) {
+            String command = scanner.next();
+            if (command.equals("create")) {
+                int width = readNextInt(scanner);
+                if (width > 0) {
+                    int heigth = readNextInt(scanner);
+                    if (heigth > 0)
+                        return new AsciiImage(width, heigth);
+                }
+            }
+        }
+        return null;
     }
 
     /**

@@ -5,6 +5,14 @@ public class AsciiImage {
     private String image;
     private int heigth, width;
 
+    public AsciiImage(int width, int heigth) {
+        //TODO: refactor to use new data structure
+    }
+
+    public AsciiImage() {
+        //TODO: delete this constructor
+    }
+
     public boolean addLine(String line) {
        if(width == 0) {
            if (line.length() > 0){
@@ -137,5 +145,13 @@ public class AsciiImage {
 
     public boolean isInsideBounds(int x, int y) {
         return x >= 0 && y >= 0 && x < width && y < heigth;
+    }
+
+    public void clear() {
+        //TODO: implement this method
+    }
+
+    public void drawLine(int x0, int y0, int x1, int y1, char color) {
+        //TODO: implement this method
     }
 }
