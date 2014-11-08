@@ -60,6 +60,8 @@ public class AsciiShop {
                 image.flipV();
             } else if(word.equals("uniqueChars")) {
                 System.out.println(image.getUniqueChars());
+            } else if(word.equals("symmetric-h")) {
+                System.out.println(image.isSymmetricH());
             } else {
                 System.out.println("INPUT MISMATCH");
                 return;

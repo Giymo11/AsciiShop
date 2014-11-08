@@ -43,6 +43,19 @@ public class AsciiImage {
     }
 
     /**
+     * checks if the image is a palindrom (horizontally symmetric)
+     */
+    public boolean isSymmetricH() {
+        for(int y = 0; y < heigth; ++y) {
+            for(int x = 0; x < width/2; ++x) {
+                if(pixelAt(x, y) != pixelAt(width-x-1, y))
+                    return false;
+            }
+        }
+        return true;
+    }
+
+    /**
      *
      * @return the number of unique colors in the image
      */
