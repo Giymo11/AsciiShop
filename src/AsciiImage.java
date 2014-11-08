@@ -125,7 +125,7 @@ public class AsciiImage {
         return image.charAt(y * width + x);
     }
 
-    private void setPixelAt(int x, int y, char color) {
+    public void setPixelAt(int x, int y, char color) {
         image = image.substring(0, y * width + x) + color + image.substring(y * width + x + 1);
     }
 
@@ -154,4 +154,5 @@ public class AsciiImage {
     public void drawLine(int x0, int y0, int x1, int y1, char color) {
         //TODO: implement this method
     }
+
 }

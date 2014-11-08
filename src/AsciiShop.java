@@ -1,3 +1,6 @@
+import java.util.LinkedList;
+import java.util.List;
+import java.util.ListIterator;
 import java.util.Scanner;
 
 /**
@@ -50,7 +53,34 @@ public class AsciiShop {
                     System.out.println("INPUT MISMATCH");
                     return;
                 }
+
                 image.drawLine(x0, y0, x1, y1, color);
+
+            } else if (command.equals("load")) {
+                String eof = sysin.next();
+                List<String> newImage = new LinkedList<String>();
+
+                while (sysin.hasNext()) {
+                    String line = sysin.next();
+
+                    if (line.equals(eof))
+                        break;
+                    else if (line.length() != image.getWidth()) {
+                        System.out.println("INPUT MISMATCH");
+                        return;
+                    } else {
+                        newImage.add(line);
+                    }
+                }
+
+                if (newImage.size() != image.getHeigth()) {
+                    System.out.println("INPUT MISMATCH");
+                    return;
+                } else {
+                    load(newImage, image);
+                }
+            } else if (command.equals("print")) {
+                System.out.println(image);
             }
         }
 
@@ -101,6 +131,22 @@ public class AsciiShop {
         System.out.println(image.toString());
         // Prints the dimensions of the image
         System.out.println(image.getWidth() + " " + image.getHeigth());
+    }
+
+    /**
+     * loads a list of strings into the old AsciiImage
+     *
+     * @param newImage
+     * @param oldImage
+     */
+    private static void load(List<String> newImage, AsciiImage oldImage) {
+        ListIterator<String> newImageIterator = newImage.listIterator();
+        while (newImageIterator.hasNext()) {
+            String line = newImageIterator.next();
+            for (int i = 0; i < line.length(); ++i) {
+                oldImage.setPixelAt(i, newImageIterator.previousIndex(), line.charAt(i));
+            }
+        }
     }
 
     private static AsciiImage readCreateCommand(Scanner scanner) {
