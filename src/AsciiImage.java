@@ -91,6 +91,7 @@ public class AsciiImage {
      * swaps rows and columns
      */
     public void transpose() {
+        //TODO: refactor for new data structure
         StringBuilder builder = new StringBuilder();
         for(int x = 0; x < width; ++x)
             for(int y = 0; y < heigth; ++y)
@@ -155,4 +156,7 @@ public class AsciiImage {
         //TODO: implement this method
     }
 
+    public void replace(char oldChar, char newChar) {
+        //TODO: implement this method
+    }
 }

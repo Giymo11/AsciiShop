@@ -22,6 +22,8 @@ public class AsciiShop {
             return;
         }
 
+
+        // reads the next commands
         while (sysin.hasNext()) {
             String command = sysin.next();
 
@@ -79,58 +81,50 @@ public class AsciiShop {
                 } else {
                     load(newImage, image);
                 }
-            } else if (command.equals("print")) {
+            } else if (command.equals("print"))
                 System.out.println(image);
-            }
-        }
-
-        // reads any fill commands
-        while (sysin.hasNext()) {
-            String word = sysin.next();
-            int x, y;
-            char c;
-
-            if(word.equals("fill")) {
-                x = readNextInt(sysin);
-                if(x < 0) {
+            else if (command.equals("replace")) {
+                char oldChar = readNextChar(sysin);
+                if (oldChar == ' ') {
                     System.out.println("INPUT MISMATCH");
                     return;
                 }
-                y = readNextInt(sysin);
-                if(y < 0) {
+                char newChar = readNextChar(sysin);
+                if (newChar == ' ') {
                     System.out.println("INPUT MISMATCH");
                     return;
                 }
-                c = readNextChar(sysin);
-                if(c == ' ') {
+                image.replace(oldChar, newChar);
+            } else if (command.equals("transpose"))
+                image.transpose();
+            else if (command.equals("fill")) {
+                int x = readNextInt(sysin);
+                if (x == -1) {
                     System.out.println("INPUT MISMATCH");
                     return;
                 }
-                // sanity check
-                if(!image.isInsideBounds(x, y)) {
+                int y = readNextInt(sysin);
+                if (y == -1) {
+                    System.out.println("INPUT MISMATCH");
+                    return;
+                }
+                if (!image.isInsideBounds(x, y)) {
                     System.out.println("OPERATION FAILED");
                     return;
                 }
-                image.fill(x, y, c);
-            } else if(word.equals("transpose")) {
-                image.transpose();
-            } else if(word.equals("flip-v")) {
-                image.flipV();
-            } else if(word.equals("uniqueChars")) {
-                System.out.println(image.getUniqueChars());
-            } else if(word.equals("symmetric-h")) {
-                System.out.println(image.isSymmetricH());
+                char color = readNextChar(sysin);
+                if (color == ' ') {
+                    System.out.println("INPUT MISMATCH");
+                    return;
+                }
+
+                image.fill(x, y, color);
             } else {
-                System.out.println("INPUT MISMATCH");
+                System.out.println("UNKNOWN COMMAND");
                 return;
             }
-
         }
 
-        // Prints the finished input
-        System.out.println(image.toString());
-        // Prints the dimensions of the image
-        System.out.println(image.getWidth() + " " + image.getHeigth());
     }
 
     /**
