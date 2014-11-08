@@ -35,41 +35,51 @@ public class AsciiShop {
 
     }
 
-    private static String interpretNextCommand(Scanner sysin, AsciiImage image) {
-        String command = sysin.next();
+    /**
+     * Tries to read and interpret the next command
+     *
+     * @param scanner The scanner to read from
+     * @param image   The image to execute the command on
+     * @return The error-code or null if successful
+     */
+    private static String interpretNextCommand(Scanner scanner, AsciiImage image) {
+        String command = scanner.next();
 
         if (command.equals("clear"))
             image.clear();
         else if (command.equals("line")) {
-            int x0 = readNextInt(sysin);
+            int x0 = readNextInt(scanner);
 
-            if (x0 <= 0)
+            if (x0 < 0)
                 return "INPUT MISMATCH";
 
-            int y0 = readNextInt(sysin);
-            if (y0 <= 0)
+            int y0 = readNextInt(scanner);
+            if (y0 < 0)
                 return "INPUT MISMATCH";
 
-            int x1 = readNextInt(sysin);
-            if (x1 <= 0)
+            int x1 = readNextInt(scanner);
+            if (x1 < 0)
                 return "INPUT MISMATCH";
 
-            int y1 = readNextInt(sysin);
-            if (y1 <= 0)
+            int y1 = readNextInt(scanner);
+            if (y1 < 0)
                 return "INPUT MISMATCH";
 
-            char color = readNextChar(sysin);
+            char color = readNextChar(scanner);
             if (color == ' ')
+                return "INPUT MISMATCH";
+
+            if (!image.isInsideBounds(x0, y0) || !image.isInsideBounds(x1, y1))
                 return "INPUT MISMATCH";
 
             image.drawLine(x0, y0, x1, y1, color);
 
         } else if (command.equals("load")) {
-            String eof = sysin.next();
+            String eof = scanner.next();
             List<String> newImage = new LinkedList<String>();
 
-            while (sysin.hasNext()) {
-                String line = sysin.next();
+            while (scanner.hasNext()) {
+                String line = scanner.next();
 
                 if (line.equals(eof))
                     break;
@@ -87,11 +97,11 @@ public class AsciiShop {
         } else if (command.equals("print"))
             System.out.println(image.toString());
         else if (command.equals("replace")) {
-            char oldChar = readNextChar(sysin);
+            char oldChar = readNextChar(scanner);
             if (oldChar == ' ')
                 return "INPUT MISMATCH";
 
-            char newChar = readNextChar(sysin);
+            char newChar = readNextChar(scanner);
             if (newChar == ' ')
                 return "INPUT MISMATCH";
 
@@ -99,18 +109,18 @@ public class AsciiShop {
         } else if (command.equals("transpose"))
             image.transpose();
         else if (command.equals("fill")) {
-            int x = readNextInt(sysin);
+            int x = readNextInt(scanner);
             if (x == -1)
                 return "INPUT MISMATCH";
 
-            int y = readNextInt(sysin);
+            int y = readNextInt(scanner);
             if (y == -1)
                 return "INPUT MISMATCH";
 
             if (!image.isInsideBounds(x, y))
                 return "OPERATION FAILED";
 
-            char color = readNextChar(sysin);
+            char color = readNextChar(scanner);
             if (color == ' ') {
                 return "INPUT MISMATCH";
             }

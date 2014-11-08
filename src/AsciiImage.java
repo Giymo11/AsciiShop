@@ -49,7 +49,7 @@ public class AsciiImage {
         setPixelAt(x, y, c);
         fillOldWithNew(x + 1, y, oldColor, c);
         fillOldWithNew(x - 1, y, oldColor, c);
-        fillOldWithNew(x, y+1, oldColor, c);
+        fillOldWithNew(x, y + 1, oldColor, c);
         fillOldWithNew(x, y - 1, oldColor, c);
     }
 
@@ -80,7 +80,40 @@ public class AsciiImage {
     }
 
     public void drawLine(int x0, int y0, int x1, int y1, char color) {
-        //TODO: implement this method
+        int deltaX = x1 - x0;
+        int deltaY = y1 - y0;
+
+        if (absoluteValueOf(deltaX) <= absoluteValueOf(deltaY)) {
+            transpose();
+            // invert y and x
+            if (deltaY <= 0)
+                //swap the starting and ending points
+                drawLineOntoImage(y1, x1, y0, x0, color);
+            else
+                drawLineOntoImage(y0, x0, y1, x1, color);
+            transpose();
+        } else {
+            //swap the starting and ending points
+            if (deltaX <= 0)
+                drawLineOntoImage(x1, y1, x0, y0, color);
+            else
+                drawLineOntoImage(x0, y0, x1, y1, color);
+        }
+    }
+
+    private int absoluteValueOf(int number) {
+        if (number < 0)
+            return number * -1;
+        return number;
+    }
+
+    private void drawLineOntoImage(int x0, double y0, int x1, int y1, char color) {
+        setPixelAt(x0, (int) Math.round(y0), color);
+        if (x0 != x1 || (float) y0 != y1)
+            if (x1 - x0 == 0)
+                drawLineOntoImage(x0 + 1, y0, x1, y1, color);
+            else
+                drawLineOntoImage(x0 + 1, y0 + (y1 - y0) / (x1 - x0), x1, y1, color);
     }
 
     public void replace(char oldChar, char newChar) {
