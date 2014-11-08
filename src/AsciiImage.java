@@ -7,7 +7,6 @@ public class AsciiImage {
     public AsciiImage(int width, int heigth) {
         image = new char[heigth][width];
         clear();
-        System.out.println("Height: " + getHeight() + ", Width: " + getWidth());
     }
 
     public int getHeight() {
