@@ -82,16 +82,16 @@ public class AsciiImage {
         image[y][x] = color;
     }
 
-    public void setPixel(AsciiPoint p, char color) {
-        setPixel(p.getX(), p.getY(), color);
+    public void setPixel(AsciiPoint point, char color) {
+        setPixel(point.getX(), point.getY(), color);
     }
 
     public boolean isInsideBounds(int x, int y) {
         return x >= 0 && y >= 0 && x < getWidth() && y < getHeight();
     }
 
-    private boolean isInsideBounds(AsciiPoint p) {
-        return isInsideBounds(p.getX(), p.getY());
+    private boolean isInsideBounds(AsciiPoint point) {
+        return isInsideBounds(point.getX(), point.getY());
     }
 
     public void clear() {
@@ -142,51 +142,72 @@ public class AsciiImage {
             setPixel(p, newChar);
     }
 
-    public AsciiPoint getCentroid(char c) {
+    public AsciiPoint getCentroid(char color) {
         int sumX = 0, sumY = 0;
-        List<AsciiPoint> list = getPointList(c);
-        if (list.size() == 0)
+        List<AsciiPoint> points = getPointList(color);
+        if (points.size() == 0)
             return null;
-        for (AsciiPoint p : list) {
-            sumX += p.getX();
-            sumY += p.getY();
+        for (AsciiPoint point : points) {
+            sumX += point.getX();
+            sumY += point.getY();
         }
-        return new AsciiPoint(Math.round(sumX / list.size()), Math.round(sumY / list.size()));
+        return new AsciiPoint(Math.round(sumX / points.size()), Math.round(sumY / points.size()));
     }
 
-    public void growRegion(char c) {
+    public void growRegion(char color) {
         AsciiImage oldImage = new AsciiImage(this);
-        for (AsciiPoint p : getPointList(c)) {
+        for (AsciiPoint point : getPointList(color)) {
 
-            AsciiPoint consideredPoint = new AsciiPoint(p.getX() - 1, p.getY());
-            setPixelIfBackground(oldImage, consideredPoint, c);
+            AsciiPoint consideredPoint = new AsciiPoint(point.getX() - 1, point.getY());
+            if (oldImage.pixelHasColor(consideredPoint, '.'))
+                setPixel(consideredPoint, color);
 
-            consideredPoint = new AsciiPoint(p.getX() + 1, p.getY());
-            setPixelIfBackground(oldImage, consideredPoint, c);
+            consideredPoint = new AsciiPoint(point.getX() + 1, point.getY());
+            if (oldImage.pixelHasColor(consideredPoint, '.'))
+                setPixel(consideredPoint, color);
 
-            consideredPoint = new AsciiPoint(p.getX(), p.getY() - 1);
-            setPixelIfBackground(oldImage, consideredPoint, c);
+            consideredPoint = new AsciiPoint(point.getX(), point.getY() - 1);
+            if (oldImage.pixelHasColor(consideredPoint, '.'))
+                setPixel(consideredPoint, color);
 
-            consideredPoint = new AsciiPoint(p.getX(), p.getY() + 1);
-            setPixelIfBackground(oldImage, consideredPoint, c);
+            consideredPoint = new AsciiPoint(point.getX(), point.getY() + 1);
+            if (oldImage.pixelHasColor(consideredPoint, '.'))
+                setPixel(consideredPoint, color);
         }
     }
 
-    private void setPixelIfBackground(AsciiImage oldImage, AsciiPoint consideredPoint, char c) {
-        if (oldImage.isInsideBounds(consideredPoint) && oldImage.getPixel(consideredPoint) == '.')
-            setPixel(consideredPoint, c);
+    private boolean pixelHasColor(AsciiPoint point, char color) {
+        return isInsideBounds(point) && getPixel(point) == color;
     }
 
-    public void straightenRegion(char c) {
-        //TODO: implement this method
+    public void straightenRegion(char color) {
+        AsciiImage oldImage = new AsciiImage(this);
+        int neighbours = 0;
+
+        for (AsciiPoint point : getPointList(color)) {
+
+            if (oldImage.pixelHasColor(new AsciiPoint(point.getX() - 1, point.getY()), color))
+                ++neighbours;
+            if (oldImage.pixelHasColor(new AsciiPoint(point.getX() + 1, point.getY()), color))
+                ++neighbours;
+            if (oldImage.pixelHasColor(new AsciiPoint(point.getX(), point.getY() + 1), color))
+                ++neighbours;
+            if (oldImage.pixelHasColor(new AsciiPoint(point.getX(), point.getY() - 1), color))
+                ++neighbours;
+
+            if (neighbours < 2)
+                setPixel(point, color);
+
+            neighbours = 0;
+        }
     }
 
-    public List<AsciiPoint> getPointList(char c) {
-        List<AsciiPoint> list = new LinkedList<AsciiPoint>();
+    public List<AsciiPoint> getPointList(char color) {
+        List<AsciiPoint> points = new LinkedList<AsciiPoint>();
         for (int x = 0; x < getWidth(); ++x)
             for (int y = 0; y < getHeight(); ++y)
-                if (getPixel(x, y) == c)
-                    list.add(new AsciiPoint(x, y));
-        return list;
+                if (getPixel(x, y) == color)
+                    points.add(new AsciiPoint(x, y));
+        return points;
     }
 }
