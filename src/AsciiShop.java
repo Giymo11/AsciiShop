@@ -156,7 +156,7 @@ public class AsciiShop {
         while (newImageIterator.hasNext()) {
             String line = newImageIterator.next();
             for (int i = 0; i < line.length(); ++i) {
-                oldImage.setPixelAt(i, newImageIterator.previousIndex(), line.charAt(i));
+                oldImage.setPixel(i, newImageIterator.previousIndex(), line.charAt(i));
             }
         }
     }
