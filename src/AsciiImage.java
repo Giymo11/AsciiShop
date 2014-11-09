@@ -1,3 +1,6 @@
+import java.util.LinkedList;
+import java.util.List;
+
 /**
  * The object representing an AsciiImage.
  */
@@ -87,6 +90,10 @@ public class AsciiImage {
         return x >= 0 && y >= 0 && x < getWidth() && y < getHeight();
     }
 
+    private boolean isInsideBounds(AsciiPoint p) {
+        return isInsideBounds(p.getX(), p.getY());
+    }
+
     public void clear() {
         for (int x = 0; x < getWidth(); ++x)
             for (int y = 0; y < getHeight(); ++y)
@@ -131,22 +138,55 @@ public class AsciiImage {
     }
 
     public void replace(char oldChar, char newChar) {
-        for (int x = 0; x < getWidth(); ++x)
-            for (int y = 0; y < getHeight(); ++y)
-                if (getPixel(x, y) == oldChar)
-                    setPixel(x, y, newChar);
+        for (AsciiPoint p : getPointList(oldChar))
+            setPixel(p, newChar);
     }
 
     public AsciiPoint getCentroid(char c) {
-        //TODO: implement this method
-        return null;
+        int sumX = 0, sumY = 0;
+        List<AsciiPoint> list = getPointList(c);
+        if (list.size() == 0)
+            return null;
+        for (AsciiPoint p : list) {
+            sumX += p.getX();
+            sumY += p.getY();
+        }
+        return new AsciiPoint(Math.round(sumX / list.size()), Math.round(sumY / list.size()));
     }
 
     public void growRegion(char c) {
-        //TODO: implement this method
+        AsciiImage oldImage = new AsciiImage(this);
+        for (AsciiPoint p : getPointList(c)) {
+
+            AsciiPoint consideredPoint = new AsciiPoint(p.getX() - 1, p.getY());
+            setPixelIfBackground(oldImage, consideredPoint, c);
+
+            consideredPoint = new AsciiPoint(p.getX() + 1, p.getY());
+            setPixelIfBackground(oldImage, consideredPoint, c);
+
+            consideredPoint = new AsciiPoint(p.getX(), p.getY() - 1);
+            setPixelIfBackground(oldImage, consideredPoint, c);
+
+            consideredPoint = new AsciiPoint(p.getX(), p.getY() + 1);
+            setPixelIfBackground(oldImage, consideredPoint, c);
+        }
+    }
+
+    private void setPixelIfBackground(AsciiImage oldImage, AsciiPoint consideredPoint, char c) {
+        if (oldImage.isInsideBounds(consideredPoint) && oldImage.getPixel(consideredPoint) == '.')
+            setPixel(consideredPoint, c);
     }
 
     public void straightenRegion(char c) {
         //TODO: implement this method
+    }
+
+    public List<AsciiPoint> getPointList(char c) {
+        List<AsciiPoint> list = new LinkedList<AsciiPoint>();
+        for (int x = 0; x < getWidth(); ++x)
+            for (int y = 0; y < getHeight(); ++y)
+                if (getPixel(x, y) == c)
+                    list.add(new AsciiPoint(x, y));
+        return list;
     }
 }
