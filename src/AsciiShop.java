@@ -45,8 +45,19 @@ public class AsciiShop {
     private static String interpretNextCommand(Scanner scanner, AsciiImage image) {
         String command = scanner.next();
 
-        if (command.equals("clear"))
+        if (command.equals("centroid")) {
+            char c = readNextChar(scanner);
+            if (c == ' ')
+                return "INPUT MISMATCH";
+            System.out.println(image.getCentroid(c));
+        } else if (command.equals("clear"))
             image.clear();
+        else if (command.equals("grow")) {
+            char c = readNextChar(scanner);
+            if (c == ' ')
+                return "INPUT MISMATCH";
+            image.growRegion(c);
+        }
         else if (command.equals("line")) {
             int x0 = readNextInt(scanner);
 
@@ -106,6 +117,11 @@ public class AsciiShop {
                 return "INPUT MISMATCH";
 
             image.replace(oldChar, newChar);
+        } else if (command.equals("straighten")) {
+            char c = readNextChar(scanner);
+            if (c == ' ')
+                return "INPUT MISMATCH";
+            image.straightenRegion(c);
         } else if (command.equals("transpose"))
             image.transpose();
         else if (command.equals("fill")) {

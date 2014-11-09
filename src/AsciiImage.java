@@ -121,4 +121,17 @@ public class AsciiImage {
                 if (pixelAt(x, y) == oldChar)
                     setPixelAt(x, y, newChar);
     }
+
+    public AsciiPoint getCentroid(char c) {
+        //TODO: implement this method
+        return null;
+    }
+
+    public void growRegion(char c) {
+        //TODO: implement this method
+    }
+
+    public void straightenRegion(char c) {
+        //TODO: implement this method
+    }
 }
