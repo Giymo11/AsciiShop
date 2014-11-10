@@ -196,7 +196,7 @@ public class AsciiImage {
                 ++neighbours;
 
             if (neighbours < 2)
-                setPixel(point, color);
+                setPixel(point, '.');
 
             neighbours = 0;
         }
