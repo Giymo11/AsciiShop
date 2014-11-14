@@ -11,12 +11,14 @@ import java.util.Scanner;
  */
 public class AsciiShop {
 
+    private static AsciiImage image;
+    private static AsciiStack stack = new AsciiStack(3);
     public static void main(String[] args) {
 
         Scanner sysin = new Scanner(System.in);
 
         // reads the create command
-        AsciiImage image = readCreateCommand(sysin);
+        image = readCreateCommand(sysin);
         if (image == null) {
             System.out.println("INPUT MISMATCH");
             return;
@@ -25,7 +27,7 @@ public class AsciiShop {
 
         // reads the next commands
         while (sysin.hasNext()) {
-            String errorCode = interpretNextCommand(sysin, image);
+            String errorCode = interpretNextCommand(sysin);
 
             if (errorCode != null) {
                 System.out.println(errorCode);
@@ -39,10 +41,9 @@ public class AsciiShop {
      * Tries to read and interpret the next command
      *
      * @param scanner The scanner to read from
-     * @param image   The image to execute the command on
      * @return The error-code or null if successful
      */
-    private static String interpretNextCommand(Scanner scanner, AsciiImage image) {
+    private static String interpretNextCommand(Scanner scanner) {
         String command = scanner.next();
 
         if (command.equals("centroid")) {
@@ -50,15 +51,17 @@ public class AsciiShop {
             if (c == ' ')
                 return "INPUT MISMATCH";
             System.out.println(image.getCentroid(c));
-        } else if (command.equals("clear"))
+        } else if (command.equals("clear")) {
+            stack.push(image);
             image.clear();
-        else if (command.equals("grow")) {
+        } else if (command.equals("grow")) {
+            stack.push(image);
             char c = readNextChar(scanner);
             if (c == ' ')
                 return "INPUT MISMATCH";
             image.growRegion(c);
-        }
-        else if (command.equals("line")) {
+        } else if (command.equals("line")) {
+            stack.push(image);
             int x0 = readNextInt(scanner);
 
             if (x0 < 0)
@@ -86,6 +89,7 @@ public class AsciiShop {
             image.drawLine(x0, y0, x1, y1, color);
 
         } else if (command.equals("load")) {
+            stack.push(image);
             String eof = scanner.next();
             List<String> newImage = new LinkedList<String>();
 
@@ -108,6 +112,7 @@ public class AsciiShop {
         } else if (command.equals("print"))
             System.out.println(image.toString());
         else if (command.equals("replace")) {
+            stack.push(image);
             char oldChar = readNextChar(scanner);
             if (oldChar == ' ')
                 return "INPUT MISMATCH";
@@ -118,13 +123,16 @@ public class AsciiShop {
 
             image.replace(oldChar, newChar);
         } else if (command.equals("straighten")) {
+            stack.push(image);
             char c = readNextChar(scanner);
             if (c == ' ')
                 return "INPUT MISMATCH";
             image.straightenRegion(c);
-        } else if (command.equals("transpose"))
+        } else if (command.equals("transpose")) {
+            stack.push(image);
             image.transpose();
-        else if (command.equals("fill")) {
+        } else if (command.equals("fill")) {
+            stack.push(image);
             int x = readNextInt(scanner);
             if (x == -1)
                 return "INPUT MISMATCH";
@@ -142,6 +150,15 @@ public class AsciiShop {
             }
 
             image.fill(x, y, color);
+        } else if (command.equals("undo")) {
+
+            if (stack.empty())
+                System.out.println("STACK EMPTY");
+            else {
+                image = stack.pop();
+                System.out.println("STACK USAGE " + stack.size() + "/" + stack.capacity());
+            }
+
         } else {
             return "UNKNOWN COMMAND";
         }
