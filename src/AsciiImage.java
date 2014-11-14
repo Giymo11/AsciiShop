@@ -151,7 +151,7 @@ public class AsciiImage {
             sumX += point.getX();
             sumY += point.getY();
         }
-        return new AsciiPoint(Math.round(sumX / points.size()), Math.round(sumY / points.size()));
+        return new AsciiPoint((int) Math.round(sumX / (double) points.size()), (int) Math.round(sumY / (double) points.size()));
     }
 
     public void growRegion(char color) {
@@ -181,24 +181,28 @@ public class AsciiImage {
     }
 
     public void straightenRegion(char color) {
-        AsciiImage oldImage = new AsciiImage(this);
+
         int neighbours = 0;
+        boolean foundImprovement = true;
 
-        for (AsciiPoint point : getPointList(color)) {
-
-            if (oldImage.pixelHasColor(new AsciiPoint(point.getX() - 1, point.getY()), color))
-                ++neighbours;
-            if (oldImage.pixelHasColor(new AsciiPoint(point.getX() + 1, point.getY()), color))
-                ++neighbours;
-            if (oldImage.pixelHasColor(new AsciiPoint(point.getX(), point.getY() + 1), color))
-                ++neighbours;
-            if (oldImage.pixelHasColor(new AsciiPoint(point.getX(), point.getY() - 1), color))
-                ++neighbours;
-
-            if (neighbours < 2)
-                setPixel(point, '.');
-
-            neighbours = 0;
+        while (foundImprovement) {
+            foundImprovement = false;
+            AsciiImage oldImage = new AsciiImage(this);
+            for (AsciiPoint point : getPointList(color)) {
+                boolean hasNeighbourAbove = oldImage.pixelHasColor(new AsciiPoint(point.getX(), point.getY() + 1), color);
+                boolean hasNeighbourBelow = oldImage.pixelHasColor(new AsciiPoint(point.getX(), point.getY() - 1), color);
+                boolean hasNeighbourLeft = oldImage.pixelHasColor(new AsciiPoint(point.getX() - 1, point.getY()), color);
+                boolean hasNeighbourRight = oldImage.pixelHasColor(new AsciiPoint(point.getX() + 1, point.getY()), color);
+                if (hasNeighbourAbove) ++neighbours;
+                if (hasNeighbourBelow) ++neighbours;
+                if (hasNeighbourLeft) ++neighbours;
+                if (hasNeighbourRight) ++neighbours;
+                if (neighbours < 2) {
+                    setPixel(point, '.');
+                    foundImprovement = true;
+                }
+                neighbours = 0;
+            }
         }
     }
 
