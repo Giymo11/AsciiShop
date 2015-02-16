@@ -22,8 +22,10 @@ public class AsciiShop {
             // reads the next commands
             while (sysin.hasNext()) {
                 Operation op = interpretNextCommand(sysin);
-                if (op != null)
+                if (op != null) {
+                    stack.push(image);
                     image = op.execute(image);
+                }
             }
         } catch (OperationException ex) {
             System.out.println("OPERATION FAILED");
@@ -50,12 +52,10 @@ public class AsciiShop {
         String command = scanner.next();
 
         if (command.equals("clear")) {
-            stack.push(image);
 
             return new ClearOperation();
 
         } else if (command.equals("load")) {
-            stack.push(image);
 
             String eof = scanner.next();
             scanner.nextLine();
@@ -74,8 +74,6 @@ public class AsciiShop {
             System.out.println(image.toString());
 
         else if (command.equals("replace")) {
-
-            stack.push(image);
 
             char oldChar = readNextChar(scanner);
 
@@ -98,6 +96,12 @@ public class AsciiShop {
                 return new MedianOperation();
             else
                 throw new IllegalArgumentException();
+
+        } else if (command.equals("binary")) {
+
+            char threshold = readNextChar(scanner);
+
+            return new BinaryOperation(threshold);
 
         } else {
             throw new IllegalArgumentException("UNKNOWN COMMAND");
@@ -131,12 +135,14 @@ public class AsciiShop {
      * @return The read character or -1 for invalid input.
      */
     private static char readNextChar(Scanner scanner) {
-        if(scanner.hasNext()) {
-            String nextWord = scanner.next();
-            if(nextWord.length() == 1)
-                return nextWord.charAt(0);
-        }
-        return ' ';
+        if (!scanner.hasNext())
+            throw new IllegalArgumentException();
+
+        String nextWord = scanner.next();
+        if (nextWord.length() != 1)
+            throw new IllegalArgumentException();
+
+        return nextWord.charAt(0);
     }
 
     /**
