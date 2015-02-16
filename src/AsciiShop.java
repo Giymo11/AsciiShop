@@ -13,6 +13,7 @@ public class AsciiShop {
 
     private static AsciiImage image;
     private static AsciiStack stack = new AsciiStack();
+
     public static void main(String[] args) {
 
         Scanner sysin = new Scanner(System.in);
@@ -46,48 +47,9 @@ public class AsciiShop {
     private static String interpretNextCommand(Scanner scanner) {
         String command = scanner.next();
 
-        if (command.equals("centroid")) {
-            char c = readNextChar(scanner);
-            if (c == ' ')
-                return "INPUT MISMATCH";
-            System.out.println(image.getCentroid(c));
-        } else if (command.equals("clear")) {
+        if (command.equals("clear")) {
             stack.push(image);
             image.clear();
-        } else if (command.equals("grow")) {
-            stack.push(image);
-            char c = readNextChar(scanner);
-            if (c == ' ')
-                return "INPUT MISMATCH";
-            image.growRegion(c);
-        } else if (command.equals("line")) {
-            stack.push(image);
-            int x0 = readNextInt(scanner);
-
-            if (x0 < 0)
-                return "INPUT MISMATCH";
-
-            int y0 = readNextInt(scanner);
-            if (y0 < 0)
-                return "INPUT MISMATCH";
-
-            int x1 = readNextInt(scanner);
-            if (x1 < 0)
-                return "INPUT MISMATCH";
-
-            int y1 = readNextInt(scanner);
-            if (y1 < 0)
-                return "INPUT MISMATCH";
-
-            char color = readNextChar(scanner);
-            if (color == ' ')
-                return "INPUT MISMATCH";
-
-            if (!image.isInsideBounds(x0, y0) || !image.isInsideBounds(x1, y1))
-                return "INPUT MISMATCH";
-
-            image.drawLine(x0, y0, x1, y1, color);
-
         } else if (command.equals("load")) {
             stack.push(image);
             String eof = scanner.next();
@@ -122,34 +84,6 @@ public class AsciiShop {
                 return "INPUT MISMATCH";
 
             image.replace(oldChar, newChar);
-        } else if (command.equals("straighten")) {
-            stack.push(image);
-            char c = readNextChar(scanner);
-            if (c == ' ')
-                return "INPUT MISMATCH";
-            image.straightenRegion(c);
-        } else if (command.equals("transpose")) {
-            stack.push(image);
-            image.transpose();
-        } else if (command.equals("fill")) {
-            stack.push(image);
-            int x = readNextInt(scanner);
-            if (x == -1)
-                return "INPUT MISMATCH";
-
-            int y = readNextInt(scanner);
-            if (y == -1)
-                return "INPUT MISMATCH";
-
-            if (!image.isInsideBounds(x, y))
-                return "OPERATION FAILED";
-
-            char color = readNextChar(scanner);
-            if (color == ' ') {
-                return "INPUT MISMATCH";
-            }
-
-            image.fill(x, y, color);
         } else if (command.equals("undo")) {
 
             if (stack.empty())
@@ -191,7 +125,10 @@ public class AsciiShop {
                 if (width > 0) {
                     int heigth = readNextInt(scanner);
                     if (heigth > 0)
-                        return new AsciiImage(width, heigth);
+                        if (scanner.hasNext()) {
+                            String charset = scanner.next();
+                            return new AsciiImage(width, heigth, charset);
+                        }
                 }
             }
         }
