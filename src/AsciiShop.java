@@ -1,3 +1,5 @@
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Scanner;
 
 /**
@@ -10,6 +12,7 @@ public class AsciiShop {
 
     private static AsciiImage image;
     private static AsciiStack stack = new AsciiStack();
+    private static Map<String, Factory> factoryMap = new HashMap<String, Factory>();
 
     public static void main(String[] args) {
 
@@ -18,6 +21,8 @@ public class AsciiShop {
         try {
             // reads the create command
             image = readCreateCommand(sysin);
+
+            initFactoryMap();
 
             // reads the next commands
             while (sysin.hasNext()) {
@@ -29,17 +34,25 @@ public class AsciiShop {
             }
         } catch (OperationException ex) {
             System.out.println("OPERATION FAILED");
-            //ex.printStackTrace();
         } catch (IllegalArgumentException ex) {
             if (ex.getMessage() != null)
                 System.out.println(ex.getMessage());
             else
                 System.out.println("INPUT MISMATCH");
+
         } catch (Exception ex) {
             System.out.println("INPUT MISMATCH");
         } finally {
             sysin.close();
         }
+    }
+
+    private static void initFactoryMap() {
+        factoryMap.put("clear", new ClearFactory());
+        factoryMap.put("load", new LoadFactory());
+        factoryMap.put("replace", new ReplaceFactory());
+        factoryMap.put("filter", new FilterFactory());
+        factoryMap.put("binary", new BinaryFactory());
     }
 
     /**
@@ -51,41 +64,26 @@ public class AsciiShop {
     private static Operation interpretNextCommand(Scanner scanner) throws FactoryException {
         String command = scanner.next();
 
-        if (command.equals("clear")) {
-
-            return new ClearFactory().create(scanner);
-
-        } else if (command.equals("load")) {
-
-            return new LoadFactory().create(scanner);
-
-        } else if (command.equals("print"))
+        if (command.equals("print")) {
 
             System.out.println(image.toString());
-
-        else if (command.equals("replace")) {
-
-            return new ReplaceFactory().create(scanner);
 
         } else if (command.equals("undo")) {
 
             if (stack.empty())
                 System.out.println("STACK EMPTY");
-            else {
+            else
                 image = stack.pop();
-            }
-
-        } else if (command.equals("filter")) {
-
-            return new FilterFactory().create(scanner);
-
-        } else if (command.equals("binary")) {
-
-            return new BinaryFactory().create(scanner);
 
         } else {
-            throw new IllegalArgumentException("UNKNOWN COMMAND");
+            Factory commandFactory = factoryMap.get(command);
+
+            if (commandFactory == null)
+                throw new IllegalArgumentException("UNKNOWN COMMAND");
+            else
+                return commandFactory.create(scanner);
         }
+
         return null;
     }
 

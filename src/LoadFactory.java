@@ -1,4 +1,5 @@
 import java.util.Scanner;
+import java.util.regex.Pattern;
 
 /**
  * Created by Giymo11 on 17.02.2015.
@@ -10,7 +11,7 @@ public class LoadFactory implements Factory {
             String eof = scanner.next();
             scanner.nextLine();
 
-            scanner.useDelimiter(eof);
+            scanner.useDelimiter(Pattern.quote(eof));
 
             String newImage = scanner.next();
 
@@ -21,6 +22,5 @@ public class LoadFactory implements Factory {
         } catch (Exception ex) {
             throw new FactoryException();
         }
-
     }
 }
