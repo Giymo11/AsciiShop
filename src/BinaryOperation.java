@@ -24,6 +24,9 @@ public class BinaryOperation implements Operation {
 
         charset = img.getCharset();
 
+        if (!charset.contains("" + threshold))
+            throw new OperationException();
+
         for (int x = 0; x < img.getWidth(); ++x) {
             for (int y = 0; y < img.getHeight(); ++y) {
                 if (valueOf(img.getPixel(x, y)) < valueOf(threshold))

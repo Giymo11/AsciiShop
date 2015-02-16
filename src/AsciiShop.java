@@ -48,26 +48,16 @@ public class AsciiShop {
      * @param scanner The scanner to read from
      * @return The error-code or null if successful
      */
-    private static Operation interpretNextCommand(Scanner scanner) {
+    private static Operation interpretNextCommand(Scanner scanner) throws FactoryException {
         String command = scanner.next();
 
         if (command.equals("clear")) {
 
-            return new ClearOperation();
+            return new ClearFactory().create(scanner);
 
         } else if (command.equals("load")) {
 
-            String eof = scanner.next();
-            scanner.nextLine();
-
-            scanner.useDelimiter(eof);
-
-            String newImage = scanner.next();
-
-            scanner.reset();
-            scanner.nextLine();
-
-            return new LoadOperation(newImage);
+            return new LoadFactory().create(scanner);
 
         } else if (command.equals("print"))
 
@@ -75,11 +65,7 @@ public class AsciiShop {
 
         else if (command.equals("replace")) {
 
-            char oldChar = readNextChar(scanner);
-
-            char newChar = readNextChar(scanner);
-
-            return new ReplaceOperation(oldChar, newChar);
+            return new ReplaceFactory().create(scanner);
 
         } else if (command.equals("undo")) {
 
@@ -91,17 +77,11 @@ public class AsciiShop {
 
         } else if (command.equals("filter")) {
 
-            String type = scanner.next();
-            if (type.equals("median"))
-                return new MedianOperation();
-            else
-                throw new IllegalArgumentException();
+            return new FilterFactory().create(scanner);
 
         } else if (command.equals("binary")) {
 
-            char threshold = readNextChar(scanner);
-
-            return new BinaryOperation(threshold);
+            return new BinaryFactory().create(scanner);
 
         } else {
             throw new IllegalArgumentException("UNKNOWN COMMAND");
@@ -134,7 +114,7 @@ public class AsciiShop {
      * Reads the next character.
      * @return The read character or -1 for invalid input.
      */
-    private static char readNextChar(Scanner scanner) {
+    public static char readNextChar(Scanner scanner) {
         if (!scanner.hasNext())
             throw new IllegalArgumentException();
 
@@ -149,7 +129,7 @@ public class AsciiShop {
      * Reads the next integer.
      * @return The read integer or -1 for invalid input.
      */
-    private static int readNextInt(Scanner scanner) {
+    public static int readNextInt(Scanner scanner) {
         if(scanner.hasNextInt())
             return scanner.nextInt();
         return -1;
