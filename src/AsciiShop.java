@@ -23,7 +23,7 @@ public class AsciiShop {
             while (sysin.hasNext()) {
                 Operation op = interpretNextCommand(sysin);
                 if (op != null)
-                    op.execute(image);
+                    image = op.execute(image);
             }
         } catch (OperationException ex) {
             System.out.println("OPERATION FAILED");
@@ -88,6 +88,14 @@ public class AsciiShop {
             else {
                 image = stack.pop();
             }
+
+        } else if (command.equals("filter")) {
+
+            String type = scanner.next();
+            if (type.equals("median"))
+                return new MedianOperation();
+            else
+                throw new IllegalArgumentException();
 
         } else {
             throw new IllegalArgumentException("UNKNOWN COMMAND");
