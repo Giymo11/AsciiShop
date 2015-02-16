@@ -33,6 +33,8 @@ public class AsciiShop {
                 System.out.println(ex.getMessage());
             else
                 System.out.println("INPUT MISMATCH");
+        } catch (Exception ex) {
+            System.out.println("INPUT MISMATCH");
         } finally {
             sysin.close();
         }

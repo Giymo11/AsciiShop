@@ -26,15 +26,18 @@ public class LoadOperation implements Operation {
                 System.out.println("should be " + img.getWidth() + " but was " + line.length());
                 throw new OperationException();
             }
-
-            for (int i = 0; i < line.length(); ++i) {
-                img.setPixel(i, lineCount, line.charAt(i));
+            try {
+                for (int i = 0; i < line.length(); ++i) {
+                    img.setPixel(i, lineCount, line.charAt(i));
+                }
+                ++lineCount;
+            } catch (Exception ex) {
+                throw new OperationException();
             }
-            ++lineCount;
         }
 
         if (lineCount != img.getHeight()) {
-            System.out.println("should be " + img.getHeight() + " but was " + lineCount);
+            //System.out.println("should be " + img.getHeight() + " but was " + lineCount);
             throw new OperationException();
         }
 
