@@ -9,13 +9,33 @@ public class AsciiImage {
     private String charset;
 
     public AsciiImage(int width, int heigth, String charset) {
+        if (width < 0 || heigth < 0)
+            throw new IllegalArgumentException();
+
+        if (charset == null || charset.equals(""))
+            throw new IllegalArgumentException();
+
+        for (char c : charset.toCharArray()) {
+            if (charset.indexOf(c) != charset.lastIndexOf(c))
+                throw new IllegalArgumentException();
+        }
+
         image = new char[heigth][width];
         this.charset = charset;
-        clear();
+
+        try {
+            new ClearOperation().execute(this);
+        } catch (OperationException e) {
+            // should never happen
+            e.printStackTrace();
+            assert false;
+        }
     }
 
     public AsciiImage(AsciiImage asciiImage) {
         image = new char[asciiImage.getHeight()][asciiImage.getWidth()];
+        charset = asciiImage.getCharset();
+
         for (int y = 0; y < getHeight(); ++y)
             for (int x = 0; x < getWidth(); ++x)
                 setPixel(x, y, asciiImage.getPixel(x, y));
@@ -40,7 +60,8 @@ public class AsciiImage {
         return builder.toString();
     }
 
-    private char getPixel(int x, int y) {
+    public char getPixel(int x, int y) {
+        boundCheck(x, y);
         return image[y][x];
     }
 
@@ -48,8 +69,20 @@ public class AsciiImage {
         return getPixel(p.getX(), p.getY());
     }
 
+    private void boundCheck(int x, int y) {
+        if (!isInsideBounds(x, y))
+            throw new IndexOutOfBoundsException();
+    }
+
     public void setPixel(int x, int y, char color) {
+        boundCheck(x, y);
+        colorCheck(color);
         image[y][x] = color;
+    }
+
+    private void colorCheck(char color) {
+        if (!charset.contains("" + color))
+            throw new IndexOutOfBoundsException();
     }
 
     public void setPixel(AsciiPoint point, char color) {
@@ -58,21 +91,6 @@ public class AsciiImage {
 
     public boolean isInsideBounds(int x, int y) {
         return x >= 0 && y >= 0 && x < getWidth() && y < getHeight();
-    }
-
-    private boolean isInsideBounds(AsciiPoint point) {
-        return isInsideBounds(point.getX(), point.getY());
-    }
-
-    public void clear() {
-        for (int x = 0; x < getWidth(); ++x)
-            for (int y = 0; y < getHeight(); ++y)
-                setPixel(x, y, '.');
-    }
-
-    public void replace(char oldChar, char newChar) {
-        for (AsciiPoint p : getPointList(oldChar))
-            setPixel(p, newChar);
     }
 
     public List<AsciiPoint> getPointList(char color) {

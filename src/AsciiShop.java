@@ -1,6 +1,3 @@
-import java.util.LinkedList;
-import java.util.List;
-import java.util.ListIterator;
 import java.util.Scanner;
 
 /**
@@ -18,24 +15,27 @@ public class AsciiShop {
 
         Scanner sysin = new Scanner(System.in);
 
-        // reads the create command
-        image = readCreateCommand(sysin);
-        if (image == null) {
-            System.out.println("INPUT MISMATCH");
-            return;
-        }
+        try {
+            // reads the create command
+            image = readCreateCommand(sysin);
 
-
-        // reads the next commands
-        while (sysin.hasNext()) {
-            String errorCode = interpretNextCommand(sysin);
-
-            if (errorCode != null) {
-                System.out.println(errorCode);
-                return;
+            // reads the next commands
+            while (sysin.hasNext()) {
+                Operation op = interpretNextCommand(sysin);
+                if (op != null)
+                    op.execute(image);
             }
+        } catch (OperationException ex) {
+            System.out.println("OPERATION FAILED");
+            //ex.printStackTrace();
+        } catch (IllegalArgumentException ex) {
+            if (ex.getMessage() != null)
+                System.out.println(ex.getMessage());
+            else
+                System.out.println("INPUT MISMATCH");
+        } finally {
+            sysin.close();
         }
-
     }
 
     /**
@@ -44,46 +44,43 @@ public class AsciiShop {
      * @param scanner The scanner to read from
      * @return The error-code or null if successful
      */
-    private static String interpretNextCommand(Scanner scanner) {
+    private static Operation interpretNextCommand(Scanner scanner) {
         String command = scanner.next();
 
         if (command.equals("clear")) {
             stack.push(image);
-            image.clear();
+
+            return new ClearOperation();
+
         } else if (command.equals("load")) {
             stack.push(image);
+
             String eof = scanner.next();
-            List<String> newImage = new LinkedList<String>();
+            scanner.nextLine();
 
-            while (scanner.hasNext()) {
-                String line = scanner.next();
+            scanner.useDelimiter(eof);
 
-                if (line.equals(eof))
-                    break;
-                else if (line.length() != image.getWidth())
-                    return "INPUT MISMATCH";
-                else
-                    newImage.add(line);
-            }
+            String newImage = scanner.next();
 
-            if (newImage.size() != image.getHeight())
-                return "INPUT MISMATCH";
-            else
-                load(newImage, image);
+            scanner.reset();
+            scanner.nextLine();
+
+            return new LoadOperation(newImage);
 
         } else if (command.equals("print"))
+
             System.out.println(image.toString());
+
         else if (command.equals("replace")) {
+
             stack.push(image);
+
             char oldChar = readNextChar(scanner);
-            if (oldChar == ' ')
-                return "INPUT MISMATCH";
 
             char newChar = readNextChar(scanner);
-            if (newChar == ' ')
-                return "INPUT MISMATCH";
 
-            image.replace(oldChar, newChar);
+            return new ReplaceOperation(oldChar, newChar);
+
         } else if (command.equals("undo")) {
 
             if (stack.empty())
@@ -93,23 +90,11 @@ public class AsciiShop {
             }
 
         } else {
-            return "UNKNOWN COMMAND";
+            throw new IllegalArgumentException("UNKNOWN COMMAND");
         }
         return null;
     }
 
-    /**
-     * loads a list of strings into an AsciiImage
-     */
-    private static void load(List<String> newImage, AsciiImage oldImage) {
-        ListIterator<String> newImageIterator = newImage.listIterator();
-        while (newImageIterator.hasNext()) {
-            String line = newImageIterator.next();
-            for (int i = 0; i < line.length(); ++i) {
-                oldImage.setPixel(i, newImageIterator.previousIndex(), line.charAt(i));
-            }
-        }
-    }
 
     /**
      * Reads the "create"-command.
@@ -118,21 +103,17 @@ public class AsciiShop {
      * @return The newly created AsciiImage, otherwise null
      */
     private static AsciiImage readCreateCommand(Scanner scanner) {
-        if (scanner.hasNext()) {
-            String command = scanner.next();
-            if (command.equals("create")) {
-                int width = readNextInt(scanner);
-                if (width > 0) {
-                    int heigth = readNextInt(scanner);
-                    if (heigth > 0)
-                        if (scanner.hasNext()) {
-                            String charset = scanner.next();
-                            return new AsciiImage(width, heigth, charset);
-                        }
-                }
-            }
-        }
-        return null;
+
+        String command = scanner.next();
+        if (!command.equals("create"))
+            throw new IllegalArgumentException("UNKNOWN COMMAND");
+
+        int width = readNextInt(scanner);
+
+        int heigth = readNextInt(scanner);
+
+        String charset = scanner.next();
+        return new AsciiImage(width, heigth, charset);
     }
 
     /**
