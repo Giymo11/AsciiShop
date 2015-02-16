@@ -1,59 +1,65 @@
 /**
- * Created by Giymo11 on 14.11.2014.
+ *
+ * A stack able to represent the history of operations on an AsciiImage
  */
 public class AsciiStack {
-    private AsciiImage[] images;
-    private int increment;
-    private int current = 0;
 
-    public AsciiStack(int increment) {
-        this.increment = increment;
-        images = new AsciiImage[increment];
-    }
+    private AsciiStackNode head;
 
-    public int capacity() {
-        return images.length;
+    public AsciiStack() {
+        head = null;
     }
 
     public boolean empty() {
-        return images[0] == null;
+        return head == null;
     }
 
     public AsciiImage peek() {
-        return images[current];
+        if (empty())
+            return null;
+        return head.getImage();
     }
 
     public int size() {
         if (empty())
             return 0;
-        else
-            return current + 1;
+        return head.size();
     }
 
     public void push(AsciiImage image) {
-        if (size() == capacity()) {
-            AsciiImage[] newImages = new AsciiImage[capacity() + increment];
-            for (int i = 0; i < images.length; ++i)
-                newImages[i] = images[i];
-            images = newImages;
-        }
-        if (!empty())
-            ++current;
-        images[current] = new AsciiImage(image);
+        head = new AsciiStackNode(new AsciiImage(image), head);
     }
 
     public AsciiImage pop() {
         if (empty())
             return null;
+        AsciiStackNode popped = head;
+        head = head.getNext();
+        return popped.getImage();
+    }
 
-        AsciiImage image = peek();
-        images[current--] = null;
-        if ((capacity() - size()) > increment) {
-            AsciiImage[] newImages = new AsciiImage[capacity() - increment];
-            for (int i = 0; i < newImages.length; ++i)
-                newImages[i] = images[i];
-            images = newImages;
+    private class AsciiStackNode {
+        private AsciiImage image;
+        private AsciiStackNode next;
+
+        public AsciiStackNode(AsciiImage image, AsciiStackNode next) {
+            this.image = image;
+            this.next = next;
         }
-        return image;
+
+        public AsciiImage getImage() {
+            return image;
+        }
+
+        public AsciiStackNode getNext() {
+            return next;
+        }
+
+        public int size() {
+            if (next == null)
+                return 1;
+
+            return 1 + next.size();
+        }
     }
 }

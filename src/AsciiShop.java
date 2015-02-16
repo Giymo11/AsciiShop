@@ -12,7 +12,7 @@ import java.util.Scanner;
 public class AsciiShop {
 
     private static AsciiImage image;
-    private static AsciiStack stack = new AsciiStack(3);
+    private static AsciiStack stack = new AsciiStack();
     public static void main(String[] args) {
 
         Scanner sysin = new Scanner(System.in);
@@ -156,7 +156,6 @@ public class AsciiShop {
                 System.out.println("STACK EMPTY");
             else {
                 image = stack.pop();
-                System.out.println("STACK USAGE " + stack.size() + "/" + stack.capacity());
             }
 
         } else {
