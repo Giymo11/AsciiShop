@@ -10,6 +10,8 @@ public class FilterFactory implements Factory {
             String type = scanner.next();
             if (type.equals("median"))
                 return new MedianOperation();
+            else if (type.equals("average"))
+                return new AverageOperation();
             else
                 throw new IllegalArgumentException();
         } catch (Exception ex) {
