@@ -13,6 +13,7 @@ public class AsciiShop {
     private static AsciiImage image;
     private static AsciiStack stack = new AsciiStack();
     private static Map<String, Factory> factoryMap = new HashMap<String, Factory>();
+    private static MetricSet<AsciiImage> saved = new MetricSet<AsciiImage>();
 
     public static void main(String[] args) {
 
@@ -20,7 +21,11 @@ public class AsciiShop {
 
         try {
             // reads the create command
-            image = readCreateCommand(sysin);
+            String command = sysin.next();
+            if (!command.equals("create"))
+                throw new IllegalArgumentException("UNKNOWN COMMAND");
+
+            image = new CreateFactory().create(sysin).execute(null);
 
             initFactoryMap();
 
@@ -55,6 +60,9 @@ public class AsciiShop {
         factoryMap.put("replace", new ReplaceFactory());
         factoryMap.put("filter", new FilterFactory());
         factoryMap.put("binary", new BinaryFactory());
+        factoryMap.put("create", new CreateFactory());
+        factoryMap.put("save", new SaveFactory(saved));
+        factoryMap.put("search", new SearchFactory(saved));
     }
 
     /**
@@ -69,6 +77,15 @@ public class AsciiShop {
         if (command.equals("print")) {
 
             System.out.println(image.toString());
+
+        } else if (command.equals("printsaved")) {
+
+            if (saved.size() == 0)
+                System.out.println("NO SAVED IMAGES");
+            else
+                for (AsciiImage image : saved) {
+                    System.out.println(image.toString());
+                }
 
         } else if (command.equals("undo")) {
 
@@ -87,27 +104,6 @@ public class AsciiShop {
         }
 
         return null;
-    }
-
-
-    /**
-     * Reads the "create"-command.
-     *
-     * @param scanner The scanner to read with
-     * @return The newly created AsciiImage, otherwise null
-     */
-    private static AsciiImage readCreateCommand(Scanner scanner) {
-
-        String command = scanner.next();
-        if (!command.equals("create"))
-            throw new IllegalArgumentException("UNKNOWN COMMAND");
-
-        int width = readNextInt(scanner);
-
-        int heigth = readNextInt(scanner);
-
-        String charset = scanner.next();
-        return new AsciiImage(width, heigth, charset);
     }
 
     /**

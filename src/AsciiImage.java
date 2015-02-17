@@ -105,4 +105,54 @@ public class AsciiImage {
     public String getCharset() {
         return charset;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        AsciiImage other = (AsciiImage) o;
+
+        if (!other.getCharset().equals(charset))
+            return false;
+
+        if (other.getHeight() != getHeight() || other.getWidth() != getWidth())
+            return false;
+
+        for (int x = 0; x < getWidth(); ++x) {
+            for (int y = 0; y < getHeight(); ++y) {
+                if (other.getPixel(x, y) != getPixel(x, y))
+                    return false;
+            }
+        }
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int sum = 0;
+
+        for (int x = 0; x < getWidth(); ++x) {
+            for (int y = 0; y < getHeight(); ++y) {
+                sum += getPixel(x, y);
+            }
+        }
+
+        return sum;
+    }
+
+    public int getUniqueChars() {
+        String uniques = "";
+
+        for (int x = 0; x < getWidth(); ++x) {
+            for (int y = 0; y < getHeight(); ++y) {
+                char c = getPixel(x, y);
+                if (!uniques.contains("" + c))
+                    uniques += c;
+            }
+        }
+
+        return uniques.length();
+    }
 }
